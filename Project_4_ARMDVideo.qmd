@@ -1,0 +1,21 @@
+---
+title: "Video Essay"
+format: revealjs
+editor: visual
+---
+
+## TBD
+
+(Use this presentation to organize thoughts, then use Zoom (mp4 output) to film the interview. Submission notes below)
+
+For this portion of the interview, you are to provide a recorded video (you can just use zoom to do this) of you (with your group) on your analysis of this data. Your video should be no more than 15 minutes and talk about the following:
+
+1\. EDA - what basic trends do the data show in relation to interferon- ?
+
+2\. Modeling - what model did you use to do this analysis and are any assumptions justified by the data. Also explain any parameters in model and what they mean in the context of the problem. This section should be specific enough that they know exactly what terms are included in your model.
+
+3\. Does interferon- stop vision loss over time? If not, how much does interferon- slow degeneration relative to no treatment? Age-Related Macular DegenerationProblem Backgroundααα α
+
+4\. On average and after controlling for the baseline score, do patients on interferon- have a significantly higher vision score at 52 weeks than those not on the treatment?
+
+Rather than submitting via LearningSuite, please upload your video IN MP4 format here: <https://byu.app.box.com/f/759907a570c34a1099be00ace245134a.> Speaking/presentation time should be split relatively evenly among all group members.α
