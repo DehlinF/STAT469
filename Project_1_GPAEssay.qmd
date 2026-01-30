@@ -5,7 +5,7 @@ format: pdf
 editor: visual
 ---
 
-# Where You Actually Are in 5 Years
+# Where You Actually Are in 5 Years (fanciful, include sources at end)
 
 At some point in job interviews, someone always asks where you see yourself in 5 years, 10 years, or some other obscure time frame. It's essentially a rite of passage for anyone entering the business world in this modern era. But what if you could determine where you would actually be in 5 years? That's what American Community Survey (ACS) set out do uncover in their Microdata Series. In addition to recording a person's sex, college GPA, and original major, they recorded their salary five years in the future. We took a look at their data and you won't believe what we uncovered.
 
@@ -47,9 +47,9 @@ While there are some ways we can predict what our lives look like in 5 years, th
 
 \newpage
 
-## Documentation (talking to statisticians)
+## Documentation (we-tense, factual and deliberate)
 
-In the article "Where You Actually Are in 5 Years" our team performed an analysis on data obtained from the American Community Survey Public Use Microdata Series. The explanatory variable chosen was Salary, with predictor variables Gender, Major, and GPA. To perform a proper analysis, dummy variables were created for gender and major, resulting in the following model
+In the article "Where You Actually Are in 5 Years" we performed an analysis on data obtained from the American Community Survey Public Use Microdata Series. The explanatory variable chosen was Salary, with predictor variables Gender, Major, and GPA. To perform a proper analysis, dummy variables were created for gender and major, resulting in the following model
 
 $$
 Model Here
