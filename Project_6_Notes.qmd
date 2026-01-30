@@ -1,0 +1,25 @@
+---
+title: "Project 6 Notes"
+format: pdf
+editor: visual
+---
+
+## TBD
+
+(As the deliverable for this is a visualization that can be accomplished in Adobe Express or Canva, this qmd can be used as a code repository for the various graphs we may produce from the data)
+
+Your objective is to analyze the data to identify contributing factors to heat-related illnesses as well as visualize high-risk areas across the greater Houston area. Your deliverable for this project is a 1-page (8.5x11 sheet) public-facing health flyer for a general audience, with insights or safety tips drawn from your analysis. Your flyer must contain the following:
+
+A model-based map of high and low risk areas across the city (not just the raw data)
+
+A list of factors that (significantly) contribute to increased or decreased risk (note that there are racial factors in here and this is a public-facing flyer so be sensitive and avoid harmful stereotypes)
+
+Suggestions on how to stay safe
+
+Heat Related Illness Prevention
+
+If you donʼt know what a flyer might look like, go to images.google.com and search something like “public health flyer for heat related illness” and youʼll get the idea. Canva is a great place to start with templates.
+
+Upload a PDF of flyer to gradescope.
+
+**Please note that the data I got from the Houston department of health initially had issues with the geometry . To fix it, just make sure to run the following: dataframe \<- st_make_valid(dataframe)**
