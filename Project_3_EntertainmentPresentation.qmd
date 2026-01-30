@@ -1,0 +1,19 @@
+---
+title: "Entertainment Model Revised"
+format: revealjs
+editor: visual
+---
+
+## TBD
+
+(This document uses a revealjs version to output PDF slides to an HTML screen. This can be amended to a PPT if need be.)
+
+For this project, you should build presentation slides for the board meeting but note that your team lead (NOT you) is giving the presentation so there should be enough detail/info for your team lead to know what you did and what your main results are. Your presentation should cover the following topics:
+
+1\. Describe the model you are currently using, how it performs for predictions and what the 2025 projections are under this model. Be sure to describe how you obtained the 2025 predictions. Company Growth ForecastingProblem BackgroundGrowth = β0 + β1Income + β2Production + β3Savings + β4Unemployment + ϵiϵiiid∼ N (0, σ2)
+
+2\. Describe at least 2 alternative models (please stick to models that we used in this class) that could be used to do the projections and emphasize how they differ from the current method.
+
+3\. Compare these 2 new methods to the current method in terms of ability to predict and the 2025 projections. Be sure to describe how you obtained the 2025 predictions.
+
+4\. The board is particularly interested to know how Income, Production, Savings and Unemployment relate to company growth. Use your preferred method (among the 3 or more you consider here) to illustrate this relationship
