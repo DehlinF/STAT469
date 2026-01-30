@@ -5,7 +5,7 @@ format: pdf
 editor: visual
 ---
 
-## Eye catching title
+## Eye catching title (talking to General Audience)
 
 Essay portion
 
@@ -18,3 +18,11 @@ comparison 3
 comparison 4
 
 conclusion
+
+## Documentation (talking to statisticians)
+
+Overall model (source to back statements in puff piece)
+
+Description of each model in the section
+
+All code
