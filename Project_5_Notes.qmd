@@ -1,0 +1,25 @@
+---
+title: "Project 5 Notes"
+format: pdf
+editor: visual
+---
+
+## Notes
+
+(As project 5 is more in depth, as we are submitting a zip file, I figured we could use this QMD to take notes and organize our thoughts as well as test out code. We may need a separate folder for the actual project though...)
+
+You work on a team that is trying to combine the power of spatial statistics with the farms sophisticated monitoring system to know CWSI for the whole farm (rather than just the part where they have data) on any given day they may need to measure CWSI so irrigation can be adjusted accordingly. The deliverable for the project is a trained R model object that can be used to predict CWSI for the whole field. In case you havenʼt done it before, a trained R model object can be saved as an RDS file via saveRDS(my_model, "file_name.rds") . Or, you can save multiple R objects as save(object1, object2, ..., file="MyRObject.RData") .
+
+As a suggestion for this project, you might want to consult ChatGPT to learn how these functions work. In addition to the trained model object, you are to write a README file that has the following sections: Crop Water Stress PredictionProblem Background
+
+1\. Description - A description of what the trained model is and does (include details on the model structure used such as any engineered features and/or correlation structures). In this description, include a measure of how well your model predicts. On a grading note, I have tried several models for this project so I know what a good model prediction accuracy is. If you using a model that gets significantly higher than the RMSE of my best model, you will be docked accordingly.
+
+2\. Dependencies - A list of any library dependencies that are needed to appropriately use the model
+
+3\. Object(s) - A list of the object(s), names and their description including class.
+
+4\. Usage - a snippet of code that shows how to use your saved object(s). In this case, you should show code on how use the objects in your rds or RData file to generate the appropriate predictions for the whole field and create a corresponding ggplot() . Note that this snippet should NOT do any model training but rather simply use a pre-trained model. **In our grading, we will use this snippet exactly as written. If this code throws an error or doesnʼt work appropriately, the max grade you can get is 50%**.
+
+5\. Output - description of any output that comes from your usage code above
+
+Rather than submitting via LearningSuite, please upload a zipped file named AllGroupMemberNames.zip (the naming is VERY important for getting credit on this project) containing BOTH your trained model either as a rds or RData file (if you are loading more than just the trained model) and your README file to: <https://byu.app.box.com/f/5d2562102d6f441f9e854e612e9fb228.>
