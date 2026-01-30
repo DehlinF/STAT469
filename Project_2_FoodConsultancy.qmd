@@ -1,0 +1,16 @@
+---
+title: "Food Consultancy"
+author: "Dallin Anderson and David Fillmore"
+format: pdf
+editor: visual
+---
+
+## TBD
+
+For this project, you are to write a technical report to the financial advisers to the National Restaurant Association. These advisers are finance undergrads so they know standard regression but that is the extent of their modeling experience. Your report should cover the following topics:
+
+1\. Introduction Provide a basic recap of why you were hired and the goals of your consulting project
+
+2\. Main Conclusions Describe the primary conclusions about the relationship between income and food expenditures. What relationships did you find? The advisers specifically hypothesize that a “healthy” restaurant economy should see increases of about \$0.50 or more per week for each \$1000 increase in income. Based on the data you have, do you think this is a healthy economy? Advisers are expecting incomes to generally shift upward in time (income generally increases by 3-4% each year). Make sure you provide some predictions on what an upward shift in income over the next 5 years or so could do to food expenditures (including the variance not just the amount spent on EatingOut).
+
+3\. Modeling Details Justify your hiring by showing that standard regression models wonʼt work for this situation so they needed to hire you and should hire you again. Describe this new “advanced” model you are using in mathematical detail and how you used it to arrive at the conclusions you came to in the following section. In doing so, these advisers donʼt know linear algebra so try to avoid that if possible. Justify (i.e validate) that this model is a trustworthy model for the answers you wrote in the previous section
