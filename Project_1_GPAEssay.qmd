@@ -17,13 +17,17 @@ While views of the world may differ, the evidence in our analysis suggests that 
 
 If you are still stressed about whether your GPA is necessary for getting a cood job, consider your major as well. When considering the emphasis of school performance, your discipline could view your GPA with less strain than others. For example, one would definitely prefer their doctor be one who got As and a few Bs than a doctor with Cs and Ds. But if we're talking videography, experience using a camera is way better than acing the history of videography. Depending on your skills and ability to learn, GPA could become just a metric rather than the end all be all.
 
-Below you'll find a graph showing the average GPA across all majors and how impactful GPA is. (or maybe some other graph. The hope is that the data reassures our readers)
+Below you'll find a graph showing the average GPA across all majors and the impact of GPA. (or maybe some other graph. The hope is that the data reassures our readers)
+
+(predict GPA for several majors)
 
 ### Salaries Across Disciplines
 
 In the tales of fantasy, we see characters embark on great journeys fueled by the desire to help their common man and bring hope to a forlorn world. In real life though, our path is often which yields the greatest compensation for our deeds. What might the \_\_\_ have been like if Bilbo Baggins had demanded money in reward for casting off the ring? Joking aside, we can finally answer the question posed at the start of this discussion: where will we (or rather our salaries) be in 5 years.
 
 The graph below shows the average salary across majors (I'm thinking a general graph that ranks majors by mean salary, and maybe a box plox to show distribution of salaries in the Top 5 and Low 5 majors
+
+(prediction of salary if you choose \_\_\_)
 
 ### Men vs Women - Who gets paid more?
 
@@ -32,6 +36,8 @@ Though we have spoken about fantasy in previous sections, the reality of gender 
 (Analysis of Men vs Women in same major category)
 
 (Analysis of effect of gender across all majors)
+
+(Prediction of some of the interesting cases)
 
 ### Other Factors Affecting Your Future
 
