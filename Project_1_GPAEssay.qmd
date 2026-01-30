@@ -5,24 +5,82 @@ format: pdf
 editor: visual
 ---
 
-## Eye catching title (talking to General Audience)
+# Where You Actually Are in 5 Years
 
-Essay portion
+At some point in job interviews, someone always asks where you see yourself in 5 years, 10 years, or some other obscure time frame. It's essentially a rite of passage for anyone entering the business world in this modern era. But what if you could determine where you would actually be in 5 years? That's what American Community Survey (ACS) set out do uncover in their Microdata Series. In addition to recording a person's sex, college GPA, and original major, they recorded their salary five years in the future. We took a look at their data and you won't believe what we uncovered.
 
-comparison 1
+### Does GPA really affect your salary?
 
-comparison 2
+Striving through college takes a very particular type of person: They need to maintain a good social and networking life to impress their peers, while simultaneously learning the minutia that will ultimately make them a better worker. That can be a challenge for some and one might wonder if one's school performance will actually make a difference once they obtain their special piece of paper. (outside source showing less employers care about GPA) . (outside source suggesting those who work hard in school correlates to \_\_\_. Another article that shows anxiety over grades can have lasting effects on motivation)
 
-comparison 3
+While views of the world may differ, the evidence in our analysis suggests that \_\_\_. (show graph of general correlation?)
 
-comparison 4
+If you are still stressed about whether your GPA is necessary for getting a cood job, consider your major as well. When considering the emphasis of school performance, your discipline could view your GPA with less strain than others. For example, one would definitely prefer their doctor be one who got As and a few Bs than a doctor with Cs and Ds. But if we're talking videography, experience using a camera is way better than acing the history of videography. Depending on your skills and ability to learn, GPA could become just a metric rather than the end all be all.
 
-conclusion
+Below you'll find a graph showing the average GPA across all majors and how impactful GPA is. (or maybe some other graph. The hope is that the data reassures our readers)
+
+### Salaries Across Disciplines
+
+In the tales of fantasy, we see characters embark on great journeys fueled by the desire to help their common man and bring hope to a forlorn world. In real life though, our path is often which yields the greatest compensation for our deeds. What might the \_\_\_ have been like if Bilbo Baggins had demanded money in reward for casting off the ring? Joking aside, we can finally answer the question posed at the start of this discussion: where will we (or rather our salaries) be in 5 years.
+
+The graph below shows the average salary across majors (I'm thinking a general graph that ranks majors by mean salary, and maybe a box plox to show distribution of salaries in the Top 5 and Low 5 majors
+
+### Men vs Women - Who gets paid more?
+
+Though we have spoken about fantasy in previous sections, the reality of gender discrimination remains a highly contested issue in the workplace (study that showed men make on average \_\_\_ more than women). And based on the data we analyzed, it seems we have not overcome that hurdle just yet
+
+(Analysis of Men vs Women in same major category)
+
+(Analysis of effect of gender across all majors)
+
+### Other Factors Affecting Your Future
+
+While our analysis has focused on gender, major, and GPA as ways to predict your future, time is a fickle thing. Plans could be in place for your inevitable rise to fame only for an upstart hire to claim the glory that was rightfully yours. Or perhaps, as we all experienced 5 years ago, a pandemic comes that throws everything out of wack. Before the pandemic, Zoom was valued at \_\_\_. No one cared for a Skype knockoff. But the pandemic gave them a stage to promote their free accounts and incredible service, such that they are now valued at \_\_\_.
+
+The same could be said about this data. The ACS is only a snapshot of the world and could be missing essential factors that would contribute to salary. For example, average salary differs by state and country, as different communities value different types of work. (Data that shows we aren't accounting for a portion of data, R\^2 score and what not)
+
+### Your Future
+
+While there are some ways we can predict what our lives look like in 5 years, the reality is that things can change. So if you are a student making their way through college, don't stress too much about the road you are on, panicked that some pastures seem greener than yours. Reality isn't so white and black, despite attempts to force that mold upon us. (General takeaways from the data)
+
+*Written in collaboration with the BYU Statistics department. If you enjoyed this article, see others on our home page (Glass door link)*
+
+\newpage
 
 ## Documentation (talking to statisticians)
 
-Overall model (source to back statements in puff piece)
+In the article "Where You Actually Are in 5 Years" our team performed an analysis on data obtained from the American Community Survey Public Use Microdata Series. The explanatory variable chosen was Salary, with predictor variables Gender, Major, and GPA. To perform a proper analysis, dummy variables were created for gender and major, resulting in the following model
 
-Description of each model in the section
+$$
+Model Here
+$$
 
-All code
+$$
+Vector Model Here
+$$
+
+Validation of the model is as follows:
+
+### GPA Model
+
+$$
+GPA model
+$$
+
+### Salary Model
+
+$$
+SalaryModel
+$$
+
+### Gender Model
+
+$$
+Gender Model
+$$
+
+### All Code Ultilized
+
+```{r All Code, eval=FALSE}
+
+```
