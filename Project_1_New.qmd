@@ -3,7 +3,7 @@ title: "Your GPA Matters (But Not as Much as You Think)"
 subtitle: "What 773 College Graduates Taught Us About Success Five Years Later"
 author: "Dallin Anderson & David Fillmore"
 date: "`r Sys.Date()`"
-output: pdf_document
+format: pdf
 ---
 
 \newpage
