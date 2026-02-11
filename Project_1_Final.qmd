@@ -1,0 +1,519 @@
+---
+title: "Your GPA Matters (But Not as Much as You Think)"
+subtitle: "What 773 College Graduates Taught Us About Success Five Years Later"
+author: "Dallin Anderson & David Fillmore"
+date: "`r Sys.Date()`"
+format: pdf
+---
+
+\newpage
+
+## Introduction
+
+You've just survived four years of college—late-night study sessions, exam anxiety, and endless debates about whether that B+ will ruin your career. Now, five years after graduation, you're settled into your job. Looking back, did all that stress about your GPA actually matter for your salary?
+
+We analyzed data from 773 college graduates to find out. The data, sourced from the American Community Survey, includes graduates' salaries five years post-graduation, their GPAs, majors, and gender. What we found might surprise you: your GPA matters, but your choice of major and your gender matter significantly more.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.align = 'center')
+
+# Load required packages
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(gridExtra)
+library(scales)
+
+# Load data
+salary_data <- read.csv("Salary.csv")
+```
+
+## The GPA Question: Should You Stress About Grades?
+
+Let's start with the question everyone wants answered: does GPA actually affect your salary? The short answer is yes——but the effect might be smaller than you think.
+
+```{r gpa_simple_model, include=FALSE}
+# Simple linear model for GPA effect
+model_simple <- lm(Salary ~ GPA, data = salary_data)
+gpa_coef <- coef(model_simple)[2]
+gpa_r_squared <- summary(model_simple)$r.squared
+```
+
+On average, each additional GPA point is associated with about \$`r format(round(gpa_coef, 0), big.mark=",")` more in annual salary. That means the difference between a 3.0 and 4.0 GPA translates to roughly **\$`r format(round(gpa_coef, 0), big.mark=",")`** per year. Over a career, that certainly adds up. But is it worth the nightmares and the stress of worrying over your grades? 
+
+There is a catch: GPA alone only explains about **`r round(gpa_r_squared * 100, 1)`%** of the variation in salaries. That means **`r round((1-gpa_r_squared) * 100, 1)`%** of what determines your salary comes from other factors. That could be your experience gained through an internship, that research project you ended up publishing, or perhaps extracurriculars that set you apart from the herd. 
+
+```{r gpa_by_major_plot, fig.cap="Source: U.S. Census Bureau, 2019-2024 American Community Survey 5-year PUMS", fig.height=6}
+ggplot(salary_data, aes(x = GPA, y = Salary, color = MajorCategory)) +
+  geom_point(alpha = 0) +
+  geom_smooth(method = "lm", se = F, linewidth = 1.25) +
+  scale_y_continuous(labels = dollar_format()) +
+  scale_color_viridis_d(option = "H") + 
+  labs(title = "GPA vs. Salary by Major Category",
+       subtitle = "Relationship between GPA and salary varies significantly across majors",
+       x = "GPA", 
+       y = "Salary (5 years post-graduation)",
+       color = "Major") +
+  theme_light() +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 8),
+        plot.title = element_text(face = "bold", size = 14))
+```
+
+So should you be hyper-anxious about every assignment? Our analysis suggests a more balanced approach. Yes, aim for good grades—they do correlate with higher earnings. But obsessing over the difference between an A- and an A probably isn't worth the mental health cost. Your energy might be better spent on internships, networking, and developing soft skills; The things that will make you approachable and trustworthy to potential employers. 
+
+**The bottom line:** Grades matter, but they're not everything. A solid GPA opens doors, but it won't single handedly determine your financial future.
+
+## Your Major Choice: The Biggest Salary Factor
+
+If GPA isn't the dominant factor, what is? The answer is clear: your choice of major.
+
+```{r major_summary, include=FALSE}
+major_summary <- salary_data %>%
+  group_by(MajorCategory) %>%
+  summarise(
+    n = n(),
+    mean_salary = mean(Salary),
+    median_salary = median(Salary),
+    sd_salary = sd(Salary),
+    se = sd_salary / sqrt(n),
+    ci_lower = mean_salary - 1.96 * se,
+    ci_upper = mean_salary + 1.96 * se
+  ) %>%
+  arrange(desc(mean_salary))
+
+highest_major <- major_summary$MajorCategory[1]
+highest_salary <- major_summary$mean_salary[1]
+lowest_major <- major_summary$MajorCategory[nrow(major_summary)]
+lowest_salary <- major_summary$mean_salary[nrow(major_summary)]
+salary_gap <- highest_salary - lowest_salary
+```
+
+`r highest_major` graduates earn the highest average salaries at **\$`r format(round(highest_salary, 0), big.mark=",")`** five years out—nearly \$`r round((highest_salary/lowest_salary - 1) * 100, 0)`% more than `r lowest_major` majors (\$`r format(round(lowest_salary, 0), big.mark=",")`), who earn the least. Computers & Mathematics (\$98,285) and Physical Sciences (\$97,485) round out the top three, while Business majors earn a respectable \$93,342 on average.
+
+```{r major_salary_plot, fig.cap="Source: U.S. Census Bureau, 2019-2024 American Community Survey 5-year PUMS", fig.height=7}
+ggplot(major_summary, aes(x = reorder(MajorCategory, mean_salary), y = mean_salary)) +
+  geom_col(fill = "steelblue", alpha = 0.8) +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), 
+                width = 0.3, linewidth = 0.8) +
+  coord_flip(ylim= c(60000, 120000)) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Average Salary by Major Category",
+       subtitle = "Error bars show 95% confidence intervals",
+       x = NULL, 
+       y = "Average Salary (5 years post-graduation)") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        axis.text.y = element_text(size = 9))
+```
+
+The gap between the highest and lowest-earning majors is striking: over **\$`r format(round(salary_gap, 0), big.mark=",")`** per year. That's a **\$`r format(round(salary_gap, 0), big.mark=",")`** annual difference that compounds over your entire career.
+
+Does this mean everyone should become an engineer? Not necessarily. Job satisfaction, work-life balance, and personal fulfillment matter too. It's also important to note that analyses like ours describe the average performance across a field. You might be the outlier; the artist who makes more than the engineer. 
+
+If salary is a priority for you, the data is clear: some majors offer significantly better financial projections than others. But your passion in your area of expertise could lead to better opportunities in the long run. The key is making an informed choice—knowing the trade-offs you're making.
+
+## The Uncomfortable Truth: The Gender Pay Gap Persists
+
+Per our analysis, we found the gender pay gap is still present in the workplace. In other words, even when controlling for major and GPA, men earn significantly more than women.
+
+```{r gender_analysis, include=FALSE}
+gender_overall <- salary_data %>%
+  group_by(Sex) %>%
+  summarise(
+    n = n(),
+    mean_salary = mean(Salary),
+    se = sd(Salary) / sqrt(n)
+  )
+
+male_salary <- gender_overall$mean_salary[gender_overall$Sex == "M"]
+female_salary <- gender_overall$mean_salary[gender_overall$Sex == "F"]
+gender_gap <- male_salary - female_salary
+gender_gap_pct <- (gender_gap / female_salary) * 100
+
+gender_by_major <- salary_data %>%
+  group_by(MajorCategory, Sex) %>%
+  summarise(
+    n = n(),
+    mean_salary = mean(Salary),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(names_from = Sex, values_from = c(mean_salary, n)) %>%
+  mutate(
+    pay_gap = mean_salary_M - mean_salary_F,
+    pay_gap_pct = (pay_gap / mean_salary_F) * 100
+  ) %>%
+  arrange(desc(pay_gap))
+```
+
+Overall, the men in our dataset earn an average of **\$`r format(round(male_salary, 0), big.mark=",")`** compared to **\$`r format(round(female_salary, 0), big.mark=",")`** for women—a gap of **\$`r format(round(gender_gap, 0), big.mark=",")`**, or **`r round(gender_gap_pct, 1)`%**. That's over \$6,000 per year that compounds over time, translating to hundreds of thousands of dollars over a lifetime.
+
+```{r gender_by_major_plot, fig.cap="Source: U.S. Census Bureau, 2019-2024 American Community Survey 5-year PUMS", fig.height=6}
+ggplot(salary_data, aes(x = reorder(MajorCategory, Salary, FUN = median), 
+                        y = Salary, fill = Sex)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  coord_flip() +
+  scale_y_continuous(labels = dollar_format()) +
+  scale_fill_manual(values = c("F" = "#E69", "M" = "#56B4E9"),
+                    labels = c("Women", "Men")) +
+  labs(title = "Salary Distribution by Major and Gender",
+       x = NULL, 
+       y = "Salary",
+       fill = NULL) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        legend.position = "top",
+        axis.text.y = element_text(size = 9))
+
+## Outliers were removed to reduce noise but maintain true data
+```
+
+The gap exists across nearly every major. In Engineering, men earn \$120,000 on average while women earn \$111,363—a \$8,638 difference. In Business, men make \$97,414 compared to women's \$89,420—a \$7,994 gap. Even in fields like Education, traditionally dominated by women, men still earn about \$2,784 more on average.
+
+As practitioners of Statistics, we looked specifically at Computers & Mathematics graduates to see how our field compared to others. Women in this discipline earn an average of \$96,514, while men earn \$100,450—a 4.1% gap. 
+
+
+## What We Can (and Can't) Predict About Your Salary
+
+Since gender is much harder to control than our GPA or major, perhaps some of us are just destined to always draw the short straw. The honest answer is GPA, major, and gender combined still don't predict your salary as well as you might hope.
+
+```{r full_model, include=FALSE}
+# Fit full interaction model
+model_full <- lm(Salary ~ GPA * MajorCategory + Sex * MajorCategory, 
+                 data = salary_data)
+
+r_squared <- summary(model_full)$r.squared
+adj_r_squared <- summary(model_full)$adj.r.squared
+
+# Example predictions
+example_grads <- data.frame(
+  GPA = c(3.5, 3.5),
+  MajorCategory = c("Engineering", "Engineering"),
+  Sex = c("M", "F")
+)
+
+set.seed(469)
+
+predictions <- predict(model_full, newdata = example_grads, 
+                      interval = "prediction", level = 0.95)
+example_grads <- cbind(example_grads, predictions)
+
+
+```
+
+Our statistical model, which includes all three factors plus their interactions, explains only about **`r round(r_squared * 100, 0)`%** of the variation in salaries. That means nearly **`r round((1 - r_squared) * 100, 0)`%** of what determines your earnings isn't captured by these variables at all.
+
+To illustrate this uncertainty: consider a male Engineering graduate with a 3.5 GPA. Our model predicts he'll earn around **\$`r format(round(example_grads$fit[1], 0), big.mark=",")`**. But in reality, his actual salary could reasonably fall anywhere from **\$`r format(round(example_grads$lwr[1], 0), big.mark=",")`** to **\$`r format(round(example_grads$upr[1], 0), big.mark=",")`**. That's a **\$`r format(round(example_grads$upr[1] - example_grads$lwr[1], 0), big.mark=",")`** range—far from a precise prediction!
+
+It's not just men that see this variation. We'll try predicting another Engineering grad with a 3.5 GPA, this time female. Our model predicts she'll earn around **\$`r format(round(example_grads$fit[2], 0), big.mark=",")`**. But like our male engineer, their salary could vary from **\$`r format(round(example_grads$lwr[2], 0), big.mark=",")`** to **\$`r format(round(example_grads$upr[2], 0), big.mark=",")`**. Notice there's a similar difference between the two: **\$`r format(round(example_grads$upr[2] - example_grads$lwr[2], 0), big.mark=",")`** in this case.
+
+```{r prediction_plot, fig.cap= "Red line shows perfect prediction; substantial scatter indicates unexplained variation"}
+# Add predictions to full dataset
+salary_data$predicted <- predict(model_full)
+predictions_all <- predict(model_full, interval = "prediction", level = 0.95)
+salary_data$pred_lower <- predictions_all[, "lwr"]
+salary_data$pred_upper <- predictions_all[, "upr"]
+
+ggplot(salary_data, aes(x = predicted, y = Salary)) +
+  geom_point(alpha = 0.4, color = "steelblue", size = 1.5) +
+  geom_abline(intercept = 0, slope = 1, color = "red", 
+              linetype = "dashed", linewidth = 1) +
+  scale_x_continuous(labels = dollar_format()) +
+  scale_y_continuous(labels = dollar_format()) +
+  labs(title = "Predicted vs. Actual Salary",
+       x = "Predicted Salary", 
+       y = "Actual Salary") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14))
+
+```
+
+So what aren't we considering in our model? Turns out plenty:
+
+-   **Geographic location:** A software engineer in San Francisco earns vastly more than one in rural Iowa
+-   **Specific job and industry:** An accountant at a Big Four firm earns more than one at a small nonprofit
+-   **Years of relevant experience:** Internships and prior work experience matter
+-   **Networking and connections:** Who you know often matters as much as what you know
+-   **College of choice:** Graduating from Harvard nets you more attention than a local community college
+-   **Graduate education:** An MBA or master's degree can impact earning potential and graduate admissions often index GPA
+-   **Negotiation skills:** The ability to effectively negotiate salary stacks the deck in your favor
+-   **Company size and type:** Large corporations typically pay more than start-ups
+-   **Company benefits:** Some people accept lower pay for better stock options, 401k matches, etc.
+-   **Career trajectory choices:** Job changes, promotions, and career pivots all influence earnings
+-   **And more!**
+
+**The takeaway:** your undergraduate GPA and major matter, but they're just the starting point. Your career trajectory depends far more on the choices you make after graduation—where you work, how you negotiate, and how you build your skills and network over time.
+
+## Conclusions: What This Means for You
+
+So what should you take away from all this data? Here are the key insights:
+
+**First,** choose your major wisely, but not cynically. Your field of study is the strongest predictor of your salary among the factors we examined. Engineering, Computer Science, and Physical Sciences lead the pack. But remember: your major doesn't just affect your paycheck—it shapes your daily work, your lifestyle, and your job satisfaction. Choose something that aligns with both your financial goals and your genuine interests.
+
+**Second,** maintain good grades, but don't sacrifice everything for them. A strong GPA does correlate with higher earnings, but the effect is modest. Aim for solid grades, but also invest time in internships, networking, leadership activities, and skill development. Real-world experience often matters more than that extra point on your GPA.
+
+**Third,** remember that your undergraduate credentials are just the beginning. Where you work, how you network, what additional skills you develop, and how you negotiate will all profoundly shape your career trajectory. Your GPA and major open certain doors, but you determine which ones to walk through—and how far you go once you're inside.
+
+**Finally,** your college years matter, but your career is a marathon, not a sprint. Make informed decisions, but don't let a few grades define your entire future. Success is multifaceted—and fortunately, that means there are many paths to get there.
+
+\newpage
+
+# Technical Documentation
+
+## 1. Modeling Approach
+
+### Model Specification
+
+We employed a linear regression model of the form:
+
+$$y \sim N(X\beta, \sigma^2I)$$
+
+where:
+
+-   $y$ = $(n \times 1)$ vector of salaries
+-   $X$ = $(n \times p)$ design matrix
+-   $\beta$ = $(p \times 1)$ vector of regression coefficients
+-   $\sigma^2$ = error variance (assumed constant)
+-   $I$ = $(n \times n)$ identity matrix
+
+The design matrix $X$ includes:
+
+-   Intercept term
+-   GPA (continuous variable, range 0-4.0)
+-   Indicator variables for MajorCategory (16 levels, reference: Arts)
+-   Indicator variable for Sex (reference: Female)
+-   Interaction terms: GPA × MajorCategory (15 interaction terms)
+-   Interaction terms: Sex × MajorCategory (15 interaction terms)
+
+### Model Selection
+
+```{r model_selection, echo=TRUE}
+# Model 1: Main effects only
+model_main <- lm(Salary ~ GPA + MajorCategory + Sex, data = salary_data)
+
+# Model 2: With interactions
+model_full <- lm(Salary ~ GPA * MajorCategory + Sex * MajorCategory, 
+                 data = salary_data)
+
+# Compare models
+cat("Main Effects Model:\n")
+cat("AIC:", AIC(model_main), "\n")
+cat("Adjusted R-squared:", summary(model_main)$adj.r.squared, "\n\n")
+
+cat("Full Model (with interactions):\n")
+cat("AIC:", AIC(model_full), "\n")
+cat("Adjusted R-squared:", summary(model_full)$adj.r.squared, "\n")
+```
+
+Model 2 (full model with interactions) was selected based on:
+
+-   Lower AIC (better fit)
+-   Higher adjusted R²
+-   Theoretical justification that GPA effects and gender pay gaps likely vary across majors
+
+### Model Validation
+
+```{r diagnostics, fig.height=8, fig.width=8}
+par(mfrow = c(2, 2))
+plot(model_full, which = 1:4)
+par(mfrow = c(1, 1))
+```
+
+**Assumption checks:**
+
+-   **Linearity:** Residual vs. fitted plot shows no clear nonlinear patterns
+-   **Normality:** QQ-plot indicates approximately normal residuals with slight heavy tails
+-   **Homoscedasticity:** Scale-location plot shows reasonably constant variance
+-   **Independence:** Justified by cross-sectional survey design
+-   **Influential points:** Cook's distance flagged a few observations, but none exceeded critical thresholds
+
+```{r model_fit_stats}
+cat("\nModel Fit Statistics:\n")
+cat("R-squared:", round(summary(model_full)$r.squared, 4), "\n")
+cat("Adjusted R-squared:", round(summary(model_full)$adj.r.squared, 4), "\n")
+cat("Residual standard error: $", 
+    format(round(summary(model_full)$sigma, 2), big.mark=","), "\n")
+cat("F-statistic:", round(summary(model_full)$fstatistic[1], 2), 
+    "on", summary(model_full)$fstatistic[2], "and", 
+    summary(model_full)$fstatistic[3], "DF (p < 0.001)\n")
+```
+
+## 2. Analysis for Each Article Section
+
+### Section 2: Impact of GPA
+
+**Research Question:** Does GPA affect salary? Is the effect different across majors?
+
+**Method:**
+
+1.  Examined coefficient for GPA in the regression model
+2.  Calculated 95% confidence interval for GPA coefficient
+3.  Tested for interaction between GPA and Major using partial F-test
+4.  Created visualizations showing GPA vs. Salary by major
+
+**Statistical Test:**
+
+```{r gpa_test, echo=TRUE}
+# Test H0: All GPA × Major interaction coefficients = 0
+model_no_gpa_int <- lm(Salary ~ GPA + MajorCategory + Sex * MajorCategory, 
+                       data = salary_data)
+anova_gpa <- anova(model_no_gpa_int, model_full)
+print(anova_gpa)
+```
+
+**Interpretation:** The F-test for GPA × Major interactions is significant (p = `r format.pval(anova_gpa$"Pr(>F)"[2])`), indicating that the effect of GPA on salary varies significantly across majors.
+
+**Key Results:**
+
+```{r gpa_results}
+cat("\nSimple GPA Effect (no interactions):\n")
+cat("Coefficient: $", format(round(coef(model_simple)[2], 2), big.mark=","), 
+    " per GPA point\n")
+cat("95% CI: ($", format(round(confint(model_simple)[2,1], 2), big.mark=","), 
+    ", $", format(round(confint(model_simple)[2,2], 2), big.mark=","), ")\n")
+cat("R-squared (GPA alone):", round(summary(model_simple)$r.squared, 4), "\n")
+```
+
+### Section 3: Salaries Across Majors
+
+**Research Question:** Do salaries differ significantly across major categories?
+
+**Method:**
+
+1.  Calculated mean salary and 95% CI for each major
+2.  Tested overall effect of Major using partial F-test
+3.  Created visualizations comparing majors
+
+**Statistical Test:**
+
+```{r major_test, echo=TRUE}
+# Test H0: All major category coefficients = 0
+model_no_major <- lm(Salary ~ GPA + Sex, data = salary_data)
+anova_major <- anova(model_no_major, model_full)
+print(anova_major)
+```
+
+**Interpretation:** Major choice has a highly significant effect on salary (p \< 0.001).
+
+**Summary Table:**
+
+```{r major_table}
+kable(major_summary %>% 
+        select(MajorCategory, n, mean_salary, ci_lower, ci_upper) %>%
+        mutate(across(where(is.numeric) & !n, ~dollar(.x, accuracy = 1))),
+      col.names = c("Major", "n", "Mean Salary", "95% CI Lower", "95% CI Upper"),
+      caption = "Summary Statistics by Major Category")
+```
+
+### Section 4: Gender Pay Gap
+
+**Research Question:** Is there a salary difference between men and women? Does it vary by major?
+
+**Method:**
+
+1.  Calculated mean salary by Major and Sex
+2.  Computed pay gap for each major
+3.  Tested Sex × Major interaction
+
+**Statistical Test:**
+
+```{r gender_test, echo=TRUE}
+# Test H0: Sex × Major interaction coefficients = 0
+model_no_sex_int <- lm(Salary ~ GPA * MajorCategory + Sex, 
+                       data = salary_data)
+anova_sex <- anova(model_no_sex_int, model_full)
+print(anova_sex)
+```
+
+**Interpretation:** The gender pay gap varies significantly across majors (p = `r format.pval(anova_sex$"Pr(>F)"[2])`).
+
+**Gender Gap by Major:**
+
+```{r gender_table}
+gender_table <- gender_by_major %>%
+  filter(!is.na(mean_salary_F) & !is.na(mean_salary_M)) %>%
+  select(MajorCategory, mean_salary_F, mean_salary_M, pay_gap, pay_gap_pct) %>%
+  arrange(desc(pay_gap_pct))
+
+kable(gender_table %>%
+        mutate(across(c(mean_salary_F, mean_salary_M, pay_gap), 
+                     ~dollar(.x, accuracy = 1)),
+               pay_gap_pct = percent(pay_gap_pct/100, accuracy = 0.1)),
+      col.names = c("Major", "Women", "Men", "Gap ($)", "Gap (%)"),
+      caption = "Gender Pay Gap by Major Category")
+```
+
+### Section 5: Predictions and Model Limitations
+
+**Research Question:** How well do our variables predict salary?
+
+**Method:**
+
+1.  Used R² to quantify explained variance
+2.  Generated predictions with 95% prediction intervals
+3.  Assessed prediction accuracy
+
+**Prediction Examples:**
+
+```{r prediction_table}
+kable(example_grads %>%
+        mutate(across(c(fit, lwr, upr), ~dollar(.x, accuracy = 1))),
+      col.names = c("GPA", "Major", "Sex", "Predicted", "Lower 95%", "Upper 95%"),
+      caption = "Example Salary Predictions with 95% Prediction Intervals")
+```
+
+**Prediction Accuracy:**
+
+```{r prediction_accuracy}
+salary_data$residual <- salary_data$Salary - salary_data$predicted
+salary_data$in_interval <- (salary_data$Salary >= salary_data$pred_lower) & 
+                           (salary_data$Salary <= salary_data$pred_upper)
+
+cat("\nPrediction Performance:\n")
+cat("Mean Absolute Error: $", 
+    format(round(mean(abs(salary_data$residual)), 0), big.mark=","), "\n")
+cat("Median Absolute Error: $", 
+    format(round(median(abs(salary_data$residual)), 0), big.mark=","), "\n")
+cat("% within 95% prediction interval:", 
+    round(mean(salary_data$in_interval) * 100, 1), "%\n")
+```
+
+## 3. Model Summary
+
+```{r full_summary}
+summary(model_full)
+```
+
+## 4. Reproducibility
+
+**Data:**
+
+-   Source: American Community Survey Public Use Microdata Series
+-   File: Salary.csv
+-   N = `r nrow(salary_data)` observations
+-   Variables: Salary, MajorCategory (`r length(unique(salary_data$MajorCategory))` levels), Sex (2 levels), GPA (continuous)
+
+**Software:**
+
+-   R version `r R.version.string`
+-   tidyverse `r packageVersion("tidyverse")`
+-   ggplot2 `r packageVersion("ggplot2")`
+
+**Session Info:**
+
+```{r session_info}
+sessionInfo()
+```
+
+## 5. Limitations
+
+1.  **Observational data:** Cannot establish causation; associations may be confounded
+2.  **Cross-sectional design:** Single snapshot five years post-graduation; doesn't capture career trajectories
+3.  **Unmeasured confounders:** Geographic location, industry, experience, networking not included
+4.  **Sample representativeness:** Results may not generalize to all colleges/regions
+5.  **Model assumptions:** Linear relationships assumed; some evidence of heavy-tailed residuals
+
+------------------------------------------------------------------------
+
+**End of Report**
