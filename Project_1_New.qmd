@@ -188,9 +188,9 @@ adj_r_squared <- summary(model_full)$adj.r.squared
 
 # Example predictions
 example_grads <- data.frame(
-  GPA = c(3.5, 3.5, 3.0, 4.0),
-  MajorCategory = c("Engineering", "Computers & Mathematics", "Business", "Education"),
-  Sex = c("M", "F", "M", "F")
+  GPA = c(3.5, 3.5),
+  MajorCategory = c("Engineering", "Engineering"),
+  Sex = c("M", "F")
 )
 
 set.seed(469)
@@ -206,7 +206,7 @@ Our statistical model, which includes all three factors plus their interactions,
 
 To illustrate this uncertainty: consider a male Engineering graduate with a 3.5 GPA. Our model predicts he'll earn around **\$`r format(round(example_grads$fit[1], 0), big.mark=",")`**. But in reality, his actual salary could reasonably fall anywhere from **\$`r format(round(example_grads$lwr[1], 0), big.mark=",")`** to **\$`r format(round(example_grads$upr[1], 0), big.mark=",")`**. That's a **\$`r format(round(example_grads$upr[1] - example_grads$lwr[1], 0), big.mark=",")`** range—far from a precise prediction!
 
-It's not just men that see this variation. Let's look at a female grad from Computers & Mathematics who also scored a 3.5 GPA. Our model predicts she'll earn around **\$`r format(round(example_grads$fit[2], 0), big.mark=",")`**. But like our male engineer, their salary could vary from **\$`r format(round(example_grads$lwr[2], 0), big.mark=",")`** to **\$`r format(round(example_grads$upr[2], 0), big.mark=",")`**. Notice there's a similar difference between the two: **\$`r format(round(example_grads$upr[2] - example_grads$lwr[2], 0), big.mark=",")`** in this case.
+It's not just men that see this variation. Let's look at another engineering grad with a 3.5 GPA, but this time female. Our model predicts she'll earn around **\$`r format(round(example_grads$fit[2], 0), big.mark=",")`**. But like our male engineer, their salary could vary from **\$`r format(round(example_grads$lwr[2], 0), big.mark=",")`** to **\$`r format(round(example_grads$upr[2], 0), big.mark=",")`**. Notice there's a similar difference between the two: **\$`r format(round(example_grads$upr[2] - example_grads$lwr[2], 0), big.mark=",")`** in this case.
 
 ```{r prediction_plot, fig.cap= "Red line shows perfect prediction; substantial scatter indicates unexplained variation"}
 # Add predictions to full dataset
