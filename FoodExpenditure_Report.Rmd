@@ -1,0 +1,457 @@
+---
+title: "Food Expenditures Consulting Report"
+subtitle: "Analysis of Income and Restaurant Spending Patterns"
+author: "David Fehlen"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_width: 6
+    fig_height: 4
+geometry: margin=1in
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, 
+  warning = FALSE, 
+  message = FALSE,
+  fig.align = 'center',
+  fig.pos = 'H'
+)
+
+# Load required libraries
+library(tidyverse)
+library(nlme)
+library(car)
+library(knitr)
+library(kableExtra)
+```
+
+```{r load-data}
+# Load the data
+food_data <- read.table("FoodExpenses.txt", header = TRUE)
+
+# Quick check of data structure
+head(food_data)
+summary(food_data)
+```
+
+\newpage
+
+# Introduction
+
+The National Restaurant Association has engaged our consulting services to investigate a critical question for the restaurant industry: how does household income influence eating-out behavior? Understanding this relationship has far-reaching implications for projecting food demand trends and assessing the viability of restaurant ownership as incomes grow domestically and as developing nations experience economic expansion.
+
+## Project Objectives
+
+Our analysis aims to address three primary objectives:
+
+1. **Characterize the relationship** between household income and weekly expenditures on food consumed away from home
+2. **Assess economic health** by determining whether the data support the hypothesis that a "healthy" restaurant economy exhibits increases of at least $0.50 per week for each $1,000 increase in annual household income
+3. **Provide forward-looking projections** that account for anticipated income growth of 3-4% annually over the next five years, including both changes in average spending and the variability in spending patterns
+
+This analysis utilizes data from the Food Demand Survey (FooDS) comprising n = 523 households, with measurements of annual household income (in thousands of dollars) and average weekly expenditure on food not prepared at home.
+
+\newpage
+
+# Main Conclusions
+
+## Relationship Between Income and Food Expenditures
+
+Our analysis reveals a **strong positive relationship** between household income and eating-out expenditures, confirming that restaurant food behaves as a "normal good" in economic terms. However, the relationship is more nuanced than a simple linear association.
+
+```{r exploratory-plots, fig.height=4, fig.width=8}
+par(mfrow = c(1, 2))
+
+# Scatterplot
+plot(food_data$Income, food_data$EatingOut,
+     xlab = "Annual Income ($1000s)",
+     ylab = "Weekly Eating Out Expenditure ($)",
+     main = "Income vs. Eating Out Spending",
+     pch = 16, col = rgb(0, 0, 0, 0.3))
+abline(lm(EatingOut ~ Income, data = food_data), col = "red", lwd = 2)
+
+# Boxplot by income groups
+food_data$IncomeGroup <- cut(food_data$Income, 
+                              breaks = c(0, 40, 70, 100, 150),
+                              labels = c("<$40k", "$40-70k", "$70-100k", ">$100k"))
+boxplot(EatingOut ~ IncomeGroup, data = food_data,
+        xlab = "Income Group",
+        ylab = "Weekly Eating Out Expenditure ($)",
+        main = "Spending Distribution by Income",
+        col = "lightblue")
+```
+
+**Key Finding:** While average spending increases with income, the **variability in spending also increases dramatically** at higher income levels. This heteroscedasticity (non-constant variance) is clearly visible in the plots above—higher-income households show much greater diversity in their eating-out behavior.
+
+```{r fit-models}
+# Standard linear regression
+model_standard <- lm(EatingOut ~ Income, data = food_data)
+
+# Variance function model (using gls with varPower structure)
+# This allows variance to increase with income
+model_advanced <- gls(EatingOut ~ Income, 
+                      data = food_data,
+                      weights = varPower(form = ~Income))
+```
+
+```{r model-summaries}
+# Extract key statistics
+standard_coef <- coef(model_standard)
+standard_se <- summary(model_standard)$coefficients[2, 2]
+
+advanced_coef <- coef(model_advanced)
+advanced_se <- summary(model_advanced)$tTable[2, 2]
+```
+
+## Economic Health Assessment
+
+The advisers hypothesized that a "healthy" restaurant economy should see increases of **at least $0.50 per week** for each $1,000 increase in income. Our advanced model estimates:
+
+```{r health-assessment}
+# Calculate slope and confidence interval from advanced model
+slope_estimate <- advanced_coef[2]
+slope_se <- advanced_se
+ci_lower <- slope_estimate - 1.96 * slope_se
+ci_upper <- slope_estimate + 1.96 * slope_se
+
+health_df <- data.frame(
+  Metric = c("Estimated Increase", "95% CI Lower Bound", "95% CI Upper Bound",
+             "Health Threshold"),
+  Value = c(slope_estimate, ci_lower, ci_upper, 0.50)
+)
+
+kable(health_df, 
+      col.names = c("Metric", "$ per Week per $1000 Income"),
+      digits = 3,
+      booktabs = TRUE,
+      caption = "Economic Health Assessment") %>%
+  kable_styling(latex_options = c("hold_position"))
+```
+
+**Verdict: `r ifelse(ci_lower > 0.50, "YES", ifelse(slope_estimate > 0.50, "LIKELY YES", "UNCERTAIN"))`**—Based on our model, `r ifelse(ci_lower > 0.50, "we can confidently conclude this is a healthy restaurant economy", ifelse(slope_estimate > 0.50, "the point estimate suggests a healthy economy, though there is some statistical uncertainty", "the evidence does not strongly support the healthy economy threshold"))`. The estimated increase of **$`r round(slope_estimate, 2)` per week per $1,000 income** `r ifelse(ci_lower > 0.50, "exceeds", ifelse(slope_estimate > 0.50, "meets or exceeds", "approaches but may not reach"))` the $0.50 threshold.
+
+## Five-Year Projections with Income Growth
+
+Assuming annual income growth of 3-4% over the next five years, we project the following changes in eating-out behavior:
+
+```{r projections}
+# Calculate predictions for representative income levels
+# at current levels and at 5 years with 3.5% annual growth
+income_levels <- c(40, 70, 100, 130)
+growth_factor <- 1.035^5  # 3.5% annual growth for 5 years
+
+# Current predictions
+current_preds <- predict(model_advanced, 
+                         newdata = data.frame(Income = income_levels),
+                         se.fit = TRUE)
+
+# Future predictions (5 years out)
+future_income <- income_levels * growth_factor
+future_preds <- predict(model_advanced,
+                        newdata = data.frame(Income = future_income),
+                        se.fit = TRUE)
+
+# Create projection table
+proj_df <- data.frame(
+  `Current Income` = paste0("$", income_levels, "k"),
+  `Future Income` = paste0("$", round(future_income, 1), "k"),
+  `Current Spending` = paste0("$", round(current_preds, 2)),
+  `Future Spending` = paste0("$", round(future_preds, 2)),
+  `Increase` = paste0("$", round(future_preds - current_preds, 2)),
+  `Percent Change` = paste0(round(100 * (future_preds - current_preds) / current_preds, 1), "%")
+)
+
+kable(proj_df,
+      col.names = c("Current Income", "Future Income (5yr)", 
+                    "Current Weekly Spending", "Future Weekly Spending",
+                    "Increase", "% Change"),
+      booktabs = TRUE,
+      caption = "Five-Year Spending Projections (3.5% Annual Income Growth)") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+```
+
+**Critical Insight on Variance:** Beyond just the average spending increases shown above, our model reveals that **spending variability will also increase** as incomes rise. This means:
+
+- Restaurant businesses can expect higher average revenues as incomes grow
+- However, individual household behavior will become **more unpredictable** at higher income levels
+- Strategic planning should account for this increased variability, not just higher averages
+
+The heteroscedasticity we observe has important business implications: while wealthy households spend more on average, they also vary more in their choices—some may dramatically increase restaurant spending while others may not change behavior substantially.
+
+\newpage
+
+# Modeling Details
+
+## Why Standard Regression Fails
+
+Your finance advisers are familiar with standard linear regression of the form:
+
+$$\text{EatingOut}_i = \beta_0 + \beta_1 \times \text{Income}_i + \varepsilon_i$$
+
+where the errors $\varepsilon_i$ are assumed to have constant variance $\sigma^2$. However, this model makes a critical assumption that **does not hold** for our data.
+
+### Diagnostic Evidence of Model Failure
+
+```{r diagnostics, fig.height=6, fig.width=8}
+par(mfrow = c(2, 2))
+
+# Residual plots for standard model
+plot(model_standard, which = 1, main = "Residuals vs Fitted")
+plot(model_standard, which = 2, main = "Q-Q Plot")
+plot(model_standard, which = 3, main = "Scale-Location")
+plot(food_data$Income, abs(residuals(model_standard)),
+     xlab = "Income ($1000s)", 
+     ylab = "Absolute Residuals",
+     main = "Residuals vs Income",
+     pch = 16, col = rgb(0, 0, 0, 0.3))
+abline(lm(abs(residuals(model_standard)) ~ food_data$Income), col = "red", lwd = 2)
+```
+
+**The Problem:** The diagnostic plots above reveal severe **heteroscedasticity**—the variance of residuals increases systematically with income. Notice in the bottom-right panel how the spread of residuals fans out as income increases. This violates the constant variance assumption.
+
+### Statistical Tests of Heteroscedasticity
+
+```{r bp-test}
+# Breusch-Pagan test for heteroscedasticity
+bp_test <- ncvTest(model_standard)
+bp_pvalue <- bp_test$p
+
+test_results <- data.frame(
+  Test = c("Breusch-Pagan Test for Heteroscedasticity"),
+  Statistic = c(round(bp_test$ChiSquare, 2)),
+  `P-value` = c(format.pval(bp_pvalue, digits = 3)),
+  Conclusion = c(ifelse(bp_pvalue < 0.05, 
+                        "Reject constant variance (heteroscedasticity present)",
+                        "Fail to reject constant variance"))
+)
+
+kable(test_results,
+      booktabs = TRUE,
+      caption = "Formal Test for Model Assumptions") %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+**Consequence of Using Standard Regression:** When heteroscedasticity is present, standard regression still produces unbiased estimates of $\beta_1$, but:
+
+1. Standard errors are **incorrect**, making confidence intervals and hypothesis tests unreliable
+2. The model fails to capture how **variability** changes with income
+3. Predictions lack proper uncertainty quantification
+
+This is why you needed to hire a consultant with advanced modeling expertise.
+
+## The Advanced Model
+
+To properly analyze this data, we employ a **Generalized Least Squares (GLS) model with a variance function**. This approach explicitly models how variance changes with income.
+
+### Model Specification
+
+The model has two components:
+
+**Mean Structure (same as before):**
+$$E[\text{EatingOut}_i | \text{Income}_i] = \beta_0 + \beta_1 \times \text{Income}_i$$
+
+**Variance Structure (the key innovation):**
+$$\text{Var}[\text{EatingOut}_i | \text{Income}_i] = \sigma^2 \times |\text{Income}_i|^{2\delta}$$
+
+where $\delta$ is a parameter we estimate from the data that controls how rapidly variance increases with income.
+
+### What This Means in Plain English
+
+Instead of assuming all observations have the same "reliability" (as standard regression does), this model:
+
+1. **Gives less weight** to observations from high-income households (which are more variable)
+2. **Gives more weight** to observations from low-income households (which are more consistent)
+3. **Estimates** how much the variability increases as income rises
+
+Think of it like averaging grades: if some students' test scores are highly erratic while others are consistent, you'd trust the consistent students' scores more when calculating an average.
+
+### Model Fitting Results
+
+```{r model-comparison-table}
+# Create comparison table
+standard_summary <- summary(model_standard)
+advanced_summary <- summary(model_advanced)
+
+comparison_df <- data.frame(
+  Parameter = c("Intercept", "Income Slope", "Residual Std Error", "R-squared"),
+  `Standard Regression` = c(
+    paste0(round(standard_coef[1], 2), " (", round(standard_summary$coefficients[1, 2], 2), ")"),
+    paste0(round(standard_coef[2], 3), " (", round(standard_summary$coefficients[2, 2], 3), ")"),
+    round(standard_summary$sigma, 2),
+    round(summary(model_standard)$r.squared, 3)
+  ),
+  `Advanced GLS Model` = c(
+    paste0(round(advanced_coef[1], 2), " (", round(advanced_summary$tTable[1, 2], 2), ")"),
+    paste0(round(advanced_coef[2], 3), " (", round(advanced_summary$tTable[2, 2], 3), ")"),
+    "Modeled by income",
+    "—"
+  )
+)
+
+kable(comparison_df,
+      col.names = c("Parameter", "Standard Regression", "Advanced GLS Model"),
+      caption = "Model Comparison (Standard Errors in Parentheses)",
+      booktabs = TRUE) %>%
+  kable_styling(latex_options = "hold_position") %>%
+  footnote(general = "The advanced model appropriately accounts for heteroscedasticity",
+           general_title = "Note:")
+```
+
+### Variance Function Estimate
+
+```{r variance-structure}
+# Extract the variance function parameter
+delta_hat <- as.numeric(coef(model_advanced$modelStruct$varStruct, unconstrained = FALSE))
+
+var_info <- data.frame(
+  Parameter = c("δ (variance power parameter)"),
+  Estimate = round(delta_hat, 3),
+  Interpretation = c("Variance increases proportionally to Income^(2×δ)")
+)
+
+kable(var_info,
+      booktabs = TRUE,
+      caption = "Estimated Variance Structure") %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+The estimated $\delta = `r round(delta_hat, 3)`$ indicates that variance increases with income at a rate proportional to $\text{Income}^{`r round(2*delta_hat, 2)`}$. This confirms our visual observation that higher-income households exhibit substantially more variable spending patterns.
+
+## Model Validation
+
+To ensure our advanced model is trustworthy, we examine several validation checks:
+
+### Standardized Residuals
+
+For the GLS model, we examine **standardized residuals**, which account for the variance structure:
+
+```{r advanced-diagnostics, fig.height=4, fig.width=8}
+# Calculate standardized residuals for advanced model
+std_resids <- residuals(model_advanced, type = "pearson")
+
+par(mfrow = c(1, 2))
+
+# Standardized residuals vs fitted
+plot(fitted(model_advanced), std_resids,
+     xlab = "Fitted Values",
+     ylab = "Standardized Residuals",
+     main = "Residuals vs Fitted (GLS Model)",
+     pch = 16, col = rgb(0, 0, 0, 0.3))
+abline(h = 0, col = "red", lwd = 2)
+abline(h = c(-2, 2), col = "red", lty = 2)
+
+# QQ plot
+qqnorm(std_resids, main = "Normal Q-Q Plot (GLS Model)",
+       pch = 16, col = rgb(0, 0, 0, 0.3))
+qqline(std_resids, col = "red", lwd = 2)
+```
+
+**Interpretation:** The standardized residuals from our advanced model show:
+
+- **No systematic pattern** in the residuals vs. fitted plot (indicating the variance structure is appropriate)
+- **Roughly constant spread** across all fitted values (heteroscedasticity has been addressed)
+- **Near-normality** in the Q-Q plot with some minor deviations in the tails (acceptable for this sample size)
+
+### Residuals vs Income
+
+```{r resid-income, fig.height=4, fig.width=6}
+plot(food_data$Income, std_resids,
+     xlab = "Income ($1000s)",
+     ylab = "Standardized Residuals",
+     main = "Standardized Residuals vs Income",
+     pch = 16, col = rgb(0, 0, 0, 0.3))
+abline(h = 0, col = "red", lwd = 2)
+abline(h = c(-2, 2), col = "red", lty = 2)
+```
+
+**Key Validation:** Unlike the standard regression diagnostics, the standardized residuals show **no funnel pattern** when plotted against income. The spread remains roughly constant across all income levels, confirming that our variance model successfully accounts for heteroscedasticity.
+
+### Information Criteria Comparison
+
+```{r aic-comparison}
+aic_comparison <- data.frame(
+  Model = c("Standard Regression", "Advanced GLS Model"),
+  AIC = c(AIC(model_standard), AIC(model_advanced)),
+  BIC = c(BIC(model_standard), BIC(model_advanced))
+)
+
+kable(aic_comparison,
+      booktabs = TRUE,
+      digits = 1,
+      caption = "Model Selection Criteria (Lower is Better)") %>%
+  kable_styling(latex_options = "hold_position") %>%
+  footnote(general = "Both AIC and BIC strongly favor the advanced GLS model",
+           general_title = "Note:")
+```
+
+**Model Selection:** The advanced GLS model has substantially lower AIC and BIC values (differences of `r round(AIC(model_standard) - AIC(model_advanced), 1)` and `r round(BIC(model_standard) - BIC(model_advanced), 1)`, respectively), providing strong statistical evidence that accounting for heteroscedasticity yields a better-fitting, more appropriate model.
+
+## Trustworthiness Assessment
+
+Based on the validation checks above, we can confidently assert that:
+
+1. **The heteroscedasticity problem has been resolved**—standardized residuals show constant variance
+2. **Assumptions are reasonably satisfied**—residuals are approximately normal with no systematic patterns
+3. **Model fit is superior**—information criteria strongly favor the advanced model
+4. **Predictions are reliable**—the model appropriately quantifies uncertainty for all income levels
+
+The conclusions presented in Section 2 are derived from this validated advanced model and thus represent trustworthy inferences about the relationship between income and eating-out expenditures.
+
+\newpage
+
+# Technical Appendix
+
+## Software and Methods
+
+All analyses were conducted in R (version `r getRversion()`) using:
+
+- Base R for standard linear regression (`lm`)
+- `nlme` package for generalized least squares with variance structures
+- `car` package for diagnostic tests
+
+## Data Summary
+
+```{r data-summary-table}
+summary_stats <- data.frame(
+  Variable = c("Income ($1000s)", "Eating Out ($/week)"),
+  Min = c(min(food_data$Income), min(food_data$EatingOut)),
+  Mean = c(mean(food_data$Income), mean(food_data$EatingOut)),
+  Median = c(median(food_data$Income), median(food_data$EatingOut)),
+  Max = c(max(food_data$Income), max(food_data$EatingOut)),
+  SD = c(sd(food_data$Income), sd(food_data$EatingOut))
+)
+
+kable(summary_stats,
+      digits = 2,
+      booktabs = TRUE,
+      caption = "Summary Statistics") %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+## Complete Model Output
+
+### Standard Linear Regression
+
+```{r standard-output}
+summary(model_standard)
+```
+
+### Advanced GLS Model with Variance Function
+
+```{r advanced-output}
+summary(model_advanced)
+```
+
+---
+
+**Report Prepared By:** David Fehlen  
+**Date:** `r format(Sys.Date(), '%B %d, %Y')`  
+**Course:** STAT 469 - Analysis of Correlated Data
